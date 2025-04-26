@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - Travel Budget Assistant{% endblock %}
+
+{% block content %}
+<div class="row align-items-center py-5">
+    <div class="col-lg-6">
+        <h1 class="display-4 fw-bold mb-4">Plan Your Perfect Trip on a Budget</h1>
+        <p class="lead mb-4">Get personalized travel recommendations, budget breakdowns, and smart tips to make your travel dreams come true without breaking the bank.</p>
+        {% if not current_user.is_authenticated %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 me-md-2">Get Started</a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg px-4">Login</a>
+            </div>
+        {% else %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg px-4 me-md-2">Go to Dashboard</a>
+                <a href="{{ url_for('chat') }}" class="btn btn-outline-primary btn-lg px-4">Start Planning</a>
+            </div>
+        {% endif %}
+    </div>
+    <div class="col-lg-6">
+        <img src="https://source.unsplash.com/random/800x600/?travel" alt="Travel" class="img-fluid rounded shadow">
+    </div>
+</div>
+
+<div class="row py-5">
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-calculator display-4 text-primary mb-3"></i>
+                <h3 class="card-title h4">Smart Budget Planning</h3>
+                <p class="card-text">Get detailed budget breakdowns and recommendations based on your travel style and preferences.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-geo-alt display-4 text-primary mb-3"></i>
+                <h3 class="card-title h4">Destination Insights</h3>
+                <p class="card-text">Discover the best budget-friendly activities, accommodations, and local experiences.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-lightning display-4 text-primary mb-3"></i>
+                <h3 class="card-title h4">AI-Powered Assistant</h3>
+                <p class="card-text">Get instant answers to your travel questions and personalized recommendations.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row py-5 bg-light rounded">
+    <div class="col-lg-8 mx-auto text-center">
+        <h2 class="mb-4">Ready to Start Planning?</h2>
+        <p class="lead mb-4">Join thousands of travelers who are already saving money on their adventures.</p>
+        {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Create Your Free Account</a>
+        {% else %}
+            <a href="{{ url_for('chat') }}" class="btn btn-primary btn-lg">Start Planning Your Trip</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neighborhood Events Planner</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        .main-container {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .prompt-sidebar {
+            flex: 1;
+            background-color: #2d2d2d;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            padding: 20px;
+            height: fit-content;
+        }
+        .chat-container {
+            flex: 2;
+            background-color: #2d2d2d;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            padding: 20px;
+        }
+        .chat-messages {
+            height: 600px;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #1a1a1a;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 80%;
+        }
+        .user-message {
+            background-color: #0d47a1;
+            color: #ffffff;
+            margin-left: auto;
+        }
+        .bot-message {
+            background-color: #424242;
+            color: #e0e0e0;
+        }
+        .event-card {
+            border: 1px solid #424242;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #2d2d2d;
+        }
+        .suggestions {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .suggestion-btn {
+            font-size: 0.9em;
+            padding: 5px 10px;
+            background-color: #424242;
+            color: #e0e0e0;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .suggestion-btn:hover {
+            background-color: #616161;
+            transform: translateY(-2px);
+        }
+        .prompt-suggestions {
+            margin-top: 0;
+            padding: 15px;
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            border-left: 4px solid #0d47a1;
+        }
+        .prompt-suggestions h4 {
+            color: #64b5f6;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        .prompt-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin-bottom: 20px;
+        }
+        .prompt-list li {
+            margin-bottom: 8px;
+            padding: 6px 10px;
+            background-color: #2d2d2d;
+            color: #e0e0e0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+        .prompt-list li:hover {
+            background-color: #424242;
+            transform: translateX(5px);
+        }
+        .prompt-category {
+            font-weight: bold;
+            color: #90caf9;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+        .response-actions {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .action-btn {
+            font-size: 0.85em;
+            padding: 4px 10px;
+            background-color: #0d47a1;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            background-color: #1565c0;
+            transform: translateY(-2px);
+        }
+        .action-btn.secondary {
+            background-color: #424242;
+        }
+        .action-btn.secondary:hover {
+            background-color: #616161;
+        }
+        .action-btn.success {
+            background-color: #1b5e20;
+        }
+        .action-btn.success:hover {
+            background-color: #2e7d32;
+        }
+        .action-btn.warning {
+            background-color: #e65100;
+            color: #ffffff;
+        }
+        .action-btn.warning:hover {
+            background-color: #f57c00;
+        }
+        .bot-message-content {
+            margin-bottom: 8px;
+        }
+        .bot-message-actions {
+            margin-top: 8px;
+            border-top: 1px dashed #424242;
+            padding-top: 8px;
+        }
+        .bot-message-content ul {
+            margin-bottom: 5px;
+            padding-left: 20px;
+        }
+        .bot-message-content li {
+            margin-bottom: 3px;
+        }
+        .rupee {
+            font-weight: bold;
+            color: #81c784;
+        }
+        .event-item {
+            margin-bottom: 5px;
+        }
+        .question {
+            font-weight: bold;
+            color: #64b5f6;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed #424242;
+        }
+        .varied-question {
+            font-style: italic;
+            color: #90caf9;
+        }
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+        .subpoint {
+            margin-left: 15px;
+            margin-bottom: 5px;
+            position: relative;
+            padding-left: 15px;
+        }
+        .subpoint:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #64b5f6;
+        }
+        .subpoint-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #64b5f6;
+            display: flex;
+            align-items: center;
+        }
+        .subpoint-title .emoji {
+            margin-right: 8px;
+        }
+        .subpoint-group {
+            margin-bottom: 15px;
+            padding-left: 10px;
+            border-left: 2px solid #424242;
+        }
+        .event-suggestion {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            border-left: 3px solid #0d47a1;
+        }
+        .event-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .event-detail {
+            margin-left: 25px;
+            margin-bottom: 3px;
+        }
+        .creative-badge {
+            display: inline-block;
+            font-size: 0.7em;
+            padding: 2px 6px;
+            background-color: #e65100;
+            color: #ffffff;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+        .theme-tag {
+            display: inline-block;
+            font-size: 0.7em;
+            padding: 2px 6px;
+            background-color: #1565c0;
+            color: white;
+            border-radius: 10px;
+            margin-right: 5px;
+        }
+        .format-tag {
+            display: inline-block;
+            font-size: 0.7em;
+            padding: 2px 6px;
+            background-color: #6a1b9a;
+            color: white;
+            border-radius: 10px;
+            margin-right: 5px;
+        }
+        .input-group {
+            background-color: #1a1a1a;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .form-control {
+            background-color: #424242;
+            border: 1px solid #616161;
+            color: #e0e0e0;
+        }
+        .form-control:focus {
+            background-color: #424242;
+            border-color: #0d47a1;
+            color: #e0e0e0;
+            box-shadow: 0 0 0 0.2rem rgba(13, 71, 161, 0.25);
+        }
+        .btn-primary {
+            background-color: #0d47a1;
+            border-color: #0d47a1;
+        }
+        .btn-primary:hover {
+            background-color: #1565c0;
+            border-color: #1565c0;
+        }
+        .text-muted {
+            color: #9e9e9e !important;
+        }
+        h2, h4 {
+            color: #e0e0e0;
+        }
+        .registration-info {
+            background-color: #1a1a1a;
+            border: 1px solid #424242;
+            border-radius: 5px;
+            padding: 10px 15px;
+            margin-top: 15px;
+            text-align: center;
+        }
+        .registration-info small {
+            color: #64b5f6 !important;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        .registration-info small::before {
+            content: "🔑 ";
+        }
+        /* Custom scrollbar for dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #424242;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #616161;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="prompt-sidebar">
+            <h4 class="text-center mb-4">Creative Events</h4>
+            <div class="prompt-suggestions">
+                <div class="prompt-category">Creative Events</div>
+                <ul class="prompt-list">
+                    <li onclick="sendSuggestion('Plan a neighborhood talent show with a theme')">Plan a neighborhood talent show with a theme</li>
+                    <li onclick="sendSuggestion('Create a mystery dinner event for the community')">Create a mystery dinner event for the community</li>
+                    <li onclick="sendSuggestion('Organize a neighborhood art gallery featuring local artists')">Organize a neighborhood art gallery featuring local artists</li>
+                </ul>
+                
+                <div class="prompt-category">Seasonal Activities</div>
+                <ul class="prompt-list">
+                    <li onclick="sendSuggestion('Plan a summer block party with games and food')">Plan a summer block party with games and food</li>
+                    <li onclick="sendSuggestion('Suggest winter holiday events for families')">Suggest winter holiday events for families</li>
+                    <li onclick="sendSuggestion('Create a spring gardening workshop')">Create a spring gardening workshop</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <h2 class="text-center mb-4">Neighborhood Events Planner</h2>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot-message">
+                    <div class="bot-message-content">
+                        Hello! I'm your neighborhood event planning assistant. I can help you:
+                        <ul>
+                            <li>Create and plan community events</li>
+                            <li>List upcoming neighborhood events</li>
+                            <li>Suggest event ideas</li>
+                            <li>Provide planning guidance and resources</li>
+                        </ul>
+                    </div>
+                    <div class="bot-message-actions">
+                        <div class="response-actions">
+                            <button class="action-btn" onclick="sendSuggestion('Create a new event')">Create Event</button>
+                            <button class="action-btn secondary" onclick="sendSuggestion('List all events')">List Events</button>
+                            <button class="action-btn success" onclick="sendSuggestion('Suggest event ideas')">Get Ideas</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="suggestions">
+                <button class="suggestion-btn" onclick="sendSuggestion('Create a new event')">Create Event</button>
+                <button class="suggestion-btn" onclick="sendSuggestion('List all events')">List Events</button>
+                <button class="suggestion-btn" onclick="sendSuggestion('Suggest event ideas')">Get Suggestions</button>
+                <button class="suggestion-btn" onclick="sendSuggestion('Help with event planning')">Planning Help</button>
+            </div>
+
+            <div class="input-group mt-3">
+                <input type="text" id="userInput" class="form-control" placeholder="Type your message here...">
+                <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+            </div>
+            
+            <div class="text-center mt-3">
+                <small class="text-muted">Registration Numbers: {{ registration_numbers }}</small>
+            </div>
+        </div>
+
+        <div class="prompt-sidebar">
+            <h4 class="text-center mb-4">Community Events</h4>
+            <div class="prompt-suggestions">
+                <div class="prompt-category">Community Building</div>
+                <ul class="prompt-list">
+                    <li onclick="sendSuggestion('Organize a neighborhood book swap')">Organize a neighborhood book swap</li>
+                    <li onclick="sendSuggestion('Plan a community potluck with cultural dishes')">Plan a community potluck with cultural dishes</li>
+                    <li onclick="sendSuggestion('Create a neighborhood skills exchange event')">Create a neighborhood skills exchange event</li>
+                </ul>
+                
+                <div class="prompt-category">Fun & Games</div>
+                <ul class="prompt-list">
+                    <li onclick="sendSuggestion('Plan a neighborhood scavenger hunt')">Plan a neighborhood scavenger hunt</li>
+                    <li onclick="sendSuggestion('Organize a community game night')">Organize a community game night</li>
+                    <li onclick="sendSuggestion('Create a neighborhood sports tournament')">Create a neighborhood sports tournament</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function appendMessage(message, isUser) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            
+            if (isUser) {
+                messageDiv.textContent = message;
+            } else {
+                // Parse the bot message to separate content and actions
+                const parts = message.split('\n\n');
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'bot-message-content';
+                
+                // Format the main content
+                const mainContent = parts[0];
+                contentDiv.innerHTML = formatBotMessage(mainContent);
+                
+                // Add the content to the message
+                messageDiv.appendChild(contentDiv);
+                
+                // If there's a question at the end, format it specially
+                if (parts.length > 1) {
+                    const questionDiv = document.createElement('div');
+                    questionDiv.className = 'question varied-question';
+                    questionDiv.textContent = parts[1];
+                    messageDiv.appendChild(questionDiv);
+                    
+                    // Add quick response buttons for common follow-ups
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'response-actions';
+                    
+                    if (parts[1].includes('create')) {
+                        actionsDiv.innerHTML = `
+                            <button class="action-btn" onclick="sendSuggestion('Yes, let\'s create an event')">Create Event</button>
+                            <button class="action-btn secondary" onclick="sendSuggestion('Show me some ideas first')">See Ideas</button>
+                        `;
+                    } else if (parts[1].includes('list')) {
+                        actionsDiv.innerHTML = `
+                            <button class="action-btn" onclick="sendSuggestion('Yes, show me the events')">Show Events</button>
+                            <button class="action-btn secondary" onclick="sendSuggestion('I want to create a new event')">Create New</button>
+                        `;
+                    } else if (parts[1].includes('budget')) {
+                        actionsDiv.innerHTML = `
+                            <button class="action-btn" onclick="sendSuggestion('Tell me about budget options')">Budget Info</button>
+                            <button class="action-btn secondary" onclick="sendSuggestion('What about venues?')">Venue Info</button>
+                        `;
+                    } else if (parts[1].includes('venue')) {
+                        actionsDiv.innerHTML = `
+                            <button class="action-btn" onclick="sendSuggestion('Show me venue options')">Venue Options</button>
+                            <button class="action-btn secondary" onclick="sendSuggestion('What about the budget?')">Budget Info</button>
+                        `;
+                    } else if (parts[1].includes('themed')) {
+                        actionsDiv.innerHTML = `
+                            <button class="action-btn" onclick="sendSuggestion('Yes, I like themed events')">Themed Events</button>
+                            <button class="action-btn secondary" onclick="sendSuggestion('Show me other creative ideas')">More Ideas</button>
+                        `;
+                    } else if (parts[1].includes('format')) {
+                        actionsDiv.innerHTML = `
+                            <button class="action-btn" onclick="sendSuggestion('Yes, I like unique formats')">Unique Formats</button>
+                            <button class="action-btn secondary" onclick="sendSuggestion('Show me themed events')">Themed Events</button>
+                        `;
+                    }
+                    
+                    if (actionsDiv.innerHTML) {
+                        messageDiv.appendChild(actionsDiv);
+                    }
+                }
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function formatBotMessage(message) {
+            // Check if this is an event suggestion format
+            if (message.includes('Event 1:') || message.includes('Event 2:') || message.includes('Event 3:')) {
+                return formatEventSuggestions(message);
+            }
+            
+            // Check if this is a budget breakdown format
+            if (message.includes('Budget Breakdown:') || message.includes('Cost-saving tips:')) {
+                return formatBudgetBreakdown(message);
+            }
+            
+            // Check if this is a venue options format
+            if (message.includes('Venue Options:') || message.includes('Accessibility:')) {
+                return formatVenueOptions(message);
+            }
+            
+            // Check if this is a general response with subpoints
+            if (message.includes('Key Points:') || message.includes('Next Steps:')) {
+                return formatSubpoints(message);
+            }
+            
+            // Default formatting for regular messages
+            let formatted = message;
+            
+            // Extract emojis from the beginning of lines
+            formatted = formatted.replace(/^([\u{1F300}-\u{1F9FF}])\s*/gu, '<span class="emoji">$1</span>');
+            
+            // Convert bullet points to HTML list
+            formatted = formatted.replace(/•/g, '<li>');
+            formatted = formatted.replace(/\n/g, '</li><li>');
+            formatted = formatted.replace(/<li><\/li>/g, '');
+            
+            // Wrap in ul if contains list items
+            if (formatted.includes('<li>')) {
+                formatted = `<ul>${formatted}</ul>`;
+            }
+            
+            // Highlight rupee amounts
+            formatted = formatted.replace(/₹(\d+(?:,\d+)*(?:\.\d{2})?)/g, '<span class="rupee">₹$1</span>');
+            
+            return formatted;
+        }
+        
+        function formatEventSuggestions(message) {
+            const lines = message.split('\n');
+            let formatted = '';
+            let currentEvent = null;
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                
+                if (line.startsWith('- 🎉') || line.startsWith('- 🎪') || line.startsWith('- 🎨')) {
+                    if (currentEvent) {
+                        formatted += '</div>';
+                    }
+                    currentEvent = document.createElement('div');
+                    currentEvent.className = 'event-suggestion';
+                    const title = line.substring(2).trim();
+                    
+                    // Add creative badge to event title
+                    const titleParts = title.split(':');
+                    const eventTitle = titleParts[0].trim();
+                    const eventDetails = titleParts.length > 1 ? titleParts[1].trim() : '';
+                    
+                    // Check for theme or format in the title
+                    let themeTag = '';
+                    let formatTag = '';
+                    
+                    if (eventTitle.includes('Under the Stars') || eventTitle.includes('Around the World') || 
+                        eventTitle.includes('Retro Revival') || eventTitle.includes('Future Forward') ||
+                        eventTitle.includes('Nature\'s Bounty') || eventTitle.includes('Urban Adventure') ||
+                        eventTitle.includes('Cultural Fusion') || eventTitle.includes('Seasonal Spectacular') ||
+                        eventTitle.includes('Community Heroes') || eventTitle.includes('Local Legends')) {
+                        
+                        const theme = eventTitle.match(/(Under the Stars|Around the World|Retro Revival|Future Forward|Nature's Bounty|Urban Adventure|Cultural Fusion|Seasonal Spectacular|Community Heroes|Local Legends)/);
+                        if (theme) {
+                            themeTag = `<span class="theme-tag">${theme[1]}</span>`;
+                        }
+                    }
+                    
+                    if (eventTitle.includes('pop-up') || eventTitle.includes('flash mob') || 
+                        eventTitle.includes('guerrilla') || eventTitle.includes('roaming') ||
+                        eventTitle.includes('interactive') || eventTitle.includes('immersive') ||
+                        eventTitle.includes('collaborative') || eventTitle.includes('participatory') ||
+                        eventTitle.includes('experiential') || eventTitle.includes('transformative')) {
+                        
+                        const format = eventTitle.match(/(pop-up|flash mob|guerrilla|roaming|interactive|immersive|collaborative|participatory|experiential|transformative)/);
+                        if (format) {
+                            formatTag = `<span class="format-tag">${format[1]}</span>`;
+                        }
+                    }
+                    
+                    currentEvent.innerHTML = `
+                        <div class="event-title">
+                            ${themeTag}${formatTag}${eventTitle}
+                            <span class="creative-badge">Creative Idea</span>
+                        </div>
+                    `;
+                    
+                    formatted += currentEvent.outerHTML;
+                } else if (line.startsWith('  📝') || line.startsWith('  💰') || line.startsWith('  🎯')) {
+                    const emoji = line.substring(2, 4);
+                    const content = line.substring(4).trim();
+                    formatted = formatted.replace('</div>', `<div class="event-detail"><span class="emoji">${emoji}</span> ${content}</div></div>`);
+                }
+            }
+            
+            if (currentEvent) {
+                formatted += '</div>';
+            }
+            
+            return formatted;
+        }
+        
+        function formatBudgetBreakdown(message) {
+            const lines = message.split('\n');
+            let formatted = '';
+            let inBudgetBreakdown = false;
+            let inCostSaving = false;
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                
+                if (line.startsWith('- 💰')) {
+                    const emoji = line.substring(2, 4);
+                    const content = line.substring(4).trim();
+                    formatted += `<div><span class="emoji">${emoji}</span> ${content}</div>`;
+                } else if (line.startsWith('- 📊')) {
+                    inBudgetBreakdown = true;
+                    inCostSaving = false;
+                    const emoji = line.substring(2, 4);
+                    formatted += `<div class="subpoint-title"><span class="emoji">${emoji}</span> Budget Breakdown:</div>`;
+                } else if (line.startsWith('- 💡')) {
+                    inBudgetBreakdown = false;
+                    inCostSaving = true;
+                    const emoji = line.substring(2, 4);
+                    formatted += `<div class="subpoint-title"><span class="emoji">${emoji}</span> Cost-saving tips:</div>`;
+                } else if (line.startsWith('  •')) {
+                    const content = line.substring(3).trim();
+                    if (inBudgetBreakdown || inCostSaving) {
+                        formatted += `<div class="subpoint">${content}</div>`;
+                    }
+                }
+            }
+            
+            return formatted;
+        }
+        
+        function formatVenueOptions(message) {
+            const lines = message.split('\n');
+            let formatted = '';
+            let inVenueOptions = false;
+            let inAccessibility = false;
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                
+                if (line.startsWith('- 📍')) {
+                    const emoji = line.substring(2, 4);
+                    const content = line.substring(4).trim();
+                    formatted += `<div><span class="emoji">${emoji}</span> ${content}</div>`;
+                } else if (line.startsWith('- 🏢')) {
+                    inVenueOptions = true;
+                    inAccessibility = false;
+                    const emoji = line.substring(2, 4);
+                    formatted += `<div class="subpoint-title"><span class="emoji">${emoji}</span> Venue Options:</div>`;
+                } else if (line.startsWith('- 🚗')) {
+                    inVenueOptions = false;
+                    inAccessibility = true;
+                    const emoji = line.substring(2, 4);
+                    formatted += `<div class="subpoint-title"><span class="emoji">${emoji}</span> Accessibility:</div>`;
+                } else if (line.startsWith('  •')) {
+                    const content = line.substring(3).trim();
+                    if (inVenueOptions || inAccessibility) {
+                        formatted += `<div class="subpoint">${content}</div>`;
+                    }
+                } else if (line.startsWith('- 💰')) {
+                    const emoji = line.substring(2, 4);
+                    const content = line.substring(4).trim();
+                    formatted += `<div class="subpoint-title"><span class="emoji">${emoji}</span> ${content}</div>`;
+                }
+            }
+            
+            return formatted;
+        }
+        
+        function formatSubpoints(message) {
+            const lines = message.split('\n');
+            let formatted = '';
+            let inKeyPoints = false;
+            let inNextSteps = false;
+            let currentGroup = '';
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                
+                if (line.startsWith('- ')) {
+                    if (line.includes('emoji')) {
+                        const emojiMatch = line.match(/[\u{1F300}-\u{1F9FF}]/u);
+                        if (emojiMatch) {
+                            const emoji = emojiMatch[0];
+                            const content = line.substring(line.indexOf(emoji) + 2).trim();
+                            formatted += `<div><span class="emoji">${emoji}</span> ${content}</div>`;
+                        } else {
+                            formatted += `<div>${line.substring(2)}</div>`;
+                        }
+                    } else {
+                        formatted += `<div>${line.substring(2)}</div>`;
+                    }
+                } else if (line.startsWith('- 📌')) {
+                    if (currentGroup) {
+                        formatted += '</div>'; // Close previous group
+                    }
+                    inKeyPoints = true;
+                    inNextSteps = false;
+                    const emoji = line.substring(2, 4);
+                    currentGroup = 'key-points';
+                    formatted += `<div class="subpoint-group"><div class="subpoint-title"><span class="emoji">${emoji}</span> Key Points:</div>`;
+                } else if (line.startsWith('- 🚀')) {
+                    if (currentGroup) {
+                        formatted += '</div>'; // Close previous group
+                    }
+                    inKeyPoints = false;
+                    inNextSteps = true;
+                    const emoji = line.substring(2, 4);
+                    currentGroup = 'next-steps';
+                    formatted += `<div class="subpoint-group"><div class="subpoint-title"><span class="emoji">${emoji}</span> Next Steps:</div>`;
+                } else if (line.startsWith('  •')) {
+                    const content = line.substring(3).trim();
+                    if (inKeyPoints || inNextSteps) {
+                        formatted += `<div class="subpoint">${content}</div>`;
+                    }
+                }
+            }
+            
+            if (currentGroup) {
+                formatted += '</div>'; // Close last group
+            }
+            
+            return formatted;
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
+            
+            if (message) {
+                appendMessage(message, true);
+                userInput.value = '';
+                
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    appendMessage(data.response, false);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    appendMessage('Sorry, I encountered an error. Please try again.', false);
+                });
+            }
+        }
+
+        function sendSuggestion(suggestion) {
+            document.getElementById('userInput').value = suggestion;
+            sendMessage();
+        }
+
+        // Handle Enter key
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html> 
